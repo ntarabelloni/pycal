@@ -1,9 +1,6 @@
-import numpy as np
-import pandas as pd
+import numpy
 import matplotlib.pyplot as plt
-import scipy as sp
-
-from scipy import linalg, sparse
+import scipy, scipy.sparse
 
 class Geometry( object ) :
 
@@ -21,11 +18,11 @@ class Geom_L2( Geometry ) :
 
     def norm( self, x ) :
         z = x * x
-        return np.sqrt( np.sum( ( z[ 1 : ] + z[ : -1 ] ) / 2 * self.basis.h ) )
+        return numpy.sqrt( numpy.sum( ( z[ 1 : ] + z[ : -1 ] ) / 2 * self.basis.h ) )
 
     def innerProduct( self, x, y ) :
         z = x * y
-        return np.sum( ( z[ 1 : ] + z[ : - 1 ] ) * 0.5 ) * self.basis.h
+        return numpy.sum( ( z[ 1 : ] + z[ : - 1 ] ) * 0.5 ) * self.basis.h
 
     def massMatrix( self ) :
 
@@ -42,8 +39,8 @@ class Geom_L2( Geometry ) :
             ids = [ (i,j) for i in range( 0, L ) for j in range( 0, i ) ]
             ids += [ (j,i) for i in range( 0, L ) for j in range( 0, i ) ]
             ids += [ (i,i) for i in range( 0, L ) ]
-            ids = np.array( ids )
+            ids = numpy.array( ids )
 
-            self.W = sp.sparse.csr_matrix( (vals, ( ids[ :, 0], ids[ :, 1 ] )), shape = ( L, L ) )
+            self.W = scipy.sparse.csr_matrix( (vals, ( ids[ :, 0], ids[ :, 1 ] )), shape = ( L, L ) )
 
         return self.W

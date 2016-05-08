@@ -1,11 +1,4 @@
-import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
-import scipy as sp
-
-from scipy import linalg, sparse
-
-
+import numpy
 
 class FunctionalBasis( object ) :
 
@@ -34,7 +27,7 @@ class FunctionalBasis( object ) :
             raise ValueError( 'You provided a grid which is not compliant to \
                              the basis values')
 
-        if( any( np.diff( np.unique( np.diff( grid ) ) ) / \
+        if( any( numpy.diff( numpy.unique( numpy.diff( grid ) ) ) / \
             ( grid.max() - grid.min() ) > 1e-14 ) ) :
                 raise ValueError( 'You provided a non-uniformly spaced grid' )
 
@@ -83,27 +76,27 @@ class FourierBasis( FunctionalBasis ) :
                 if( any( [ ids_subset[ i ] > ids_subset[ i + 1 ] \
                           for i in range( 0, L - 1 ) ] ) ) :
                     raise UserWarning('You provided unsorted ids_subset! Sorting it. ')
-                    ids_subset = np.sort( ids_subset )
+                    ids_subset = numpy.sort( ids_subset )
         else :
             ids_subset = range( 0, L )
 
         # Initialisation of values
         self.L = L
-        self.values = np.zeros( ( self.L, self.P ) )
-        grid = np.linspace( self.t0, self.tP, self.P )
+        self.values = numpy.zeros( ( self.L, self.P ) )
+        grid = numpy.linspace( self.t0, self.tP, self.P )
 
-        l = np.diff( ( np.min( grid ), np.max( grid ) ) )
+        l = numpy.diff( ( numpy.min( grid ), numpy.max( grid ) ) )
 
         for (pos, i) in zip( range( 0, L ), ids_subset ) :
             if i % 2 == 0 :
                 if i == 0 :
-                    self.values[ pos ] = 1. / np.sqrt( l )
+                    self.values[ pos ] = 1. / numpy.sqrt( l )
                 else :
-                    self.values[ pos ] = np.sqrt( 2 / l ) * np.cos( 2 * np.pi * \
-                            np.ceil( float( i ) / 2 ) * ( grid - grid[0] ) / l )
+                    self.values[ pos ] = numpy.sqrt( 2 / l ) * numpy.cos( 2 * numpy.pi * \
+                            numpy.ceil( float( i ) / 2 ) * ( grid - grid[0] ) / l )
             else :
-                self.values[ pos ] = np.sqrt( 2 / l ) * np.sin( 2 * np.pi * \
-                            np.ceil( float( i ) / 2 ) * ( grid - grid[ 0 ] ) / l )
+                self.values[ pos ] = numpy.sqrt( 2 / l ) * numpy.sin( 2 * numpy.pi * \
+                            numpy.ceil( float( i ) / 2 ) * ( grid - grid[ 0 ] ) / l )
 
 class BsplineBasis( FunctionalBasis ) :
 
@@ -116,20 +109,20 @@ class BsplineBasis( FunctionalBasis ) :
 
         self.degree = degree
 
-        grid = np.linspace( self.t0, self.tP, self.P )
+        grid = numpy.linspace( self.t0, self.tP, self.P )
 
         if( inner_breaks is None ) :
             if( L is None ) :
                 raise ValueError( 'You must provide at least either inner_breaks or L')
 
             self.L = L
-            self.inner_breaks = [ np.percentile( grid, prob ) for prob in \
-                    np.linspace( 0, 100, self.L - 1 - self.degree + 2 )[ 1 : -1 ] ]
+            self.inner_breaks = [ numpy.percentile( grid, prob ) for prob in \
+                    numpy.linspace( 0, 100, self.L - 1 - self.degree + 2 )[ 1 : -1 ] ]
 
             self.values = self.computeBsplines()
 
         else :
-            if( len( inner_breaks ) != len( np.unique( inner_breaks ) ) ) :
+            if( len( inner_breaks ) != len( numpy.unique( inner_breaks ) ) ) :
                 raise ValueError( 'Only unique inner breaks are supported for now.')
 
             if( min( inner_breaks ) <= self.t0 or max( inner_breaks ) >= self.tP ) :
@@ -145,7 +138,7 @@ class BsplineBasis( FunctionalBasis ) :
 
     def computeBsplines( self ) :
 
-        grid = np.linspace( self.t0, self.tP, self.P )
+        grid = numpy.linspace( self.t0, self.tP, self.P )
 
         if( any( [ x >= self.tP or x <= self.t0 for x in self.inner_breaks ] ) ) :
             raise ValueError( 'Inner breaks do not fall inside the grid provided')
@@ -157,13 +150,13 @@ class BsplineBasis( FunctionalBasis ) :
         N = order + len( self.inner_breaks )
 
         if( isinstance( self.inner_breaks, list ) ) :
-            knots_new = np.asarray( [ self.t0 ] + self.inner_breaks + [ self.tP ] )
+            knots_new = numpy.asarray( [ self.t0 ] + self.inner_breaks + [ self.tP ] )
         else :
             # I assume to have a numpy.array or an instance of calss with .tolist()
             # method
-            knots_new = np.asarray( [ self.t0 ] + self.inner_breaks.tolist() + [ self.tP ] )
+            knots_new = numpy.asarray( [ self.t0 ] + self.inner_breaks.tolist() + [ self.tP ] )
 
-        bs_new = np.zeros( ( N_intervals, self.P ) )
+        bs_new = numpy.zeros( ( N_intervals, self.P ) )
 
         for i in range( 0, N_intervals ) :
 
@@ -181,10 +174,10 @@ class BsplineBasis( FunctionalBasis ) :
                 offset_new = 1 - ( 2 - K ) - 1
 
                 knots_old = knots_new.copy()
-                knots_new = np.asarray( [ self.t0 ] + knots_old.tolist() + [ self.tP ] )
+                knots_new = numpy.asarray( [ self.t0 ] + knots_old.tolist() + [ self.tP ] )
 
                 bs_old = bs_new.copy()
-                bs_new = np.zeros( ( N_intervals + K - 1, self.P ) )
+                bs_new = numpy.zeros( ( N_intervals + K - 1, self.P ) )
 
                 for i in range( 2 - K, N_intervals + 1 ) :
 

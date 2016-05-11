@@ -75,7 +75,7 @@ class FourierBasis( FunctionalBasis ) :
                 L = len( ids_subset )
                 if( any( [ ids_subset[ i ] > ids_subset[ i + 1 ] \
                           for i in range( 0, L - 1 ) ] ) ) :
-                    raise UserWarning('You provided unsorted ids_subset! Sorting it. ')
+                    raise ValueError('You provided unsorted ids_subset! Sorting it. ')
                     ids_subset = numpy.sort( ids_subset )
         else :
             ids_subset = range( 0, L )

@@ -16,4 +16,4 @@ config = {
     'name': 'pycal'
 }
 
-setup(**config)
+setup(**config )

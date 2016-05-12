@@ -61,7 +61,7 @@ class FunctionalBasis( object ) :
         grid = numpy.linspace( self.t0, self.tP, self.P )
         [ plt.plot( grid, self.values[ i, ], c = colors[ i ] ) for i in range( 0, self.L ) ]
         plt.grid()
-        
+
         if show :
             plt.show()
 
@@ -89,7 +89,7 @@ class FourierBasis( FunctionalBasis ) :
                 L = len( ids_subset )
                 if( any( [ ids_subset[ i ] > ids_subset[ i + 1 ] \
                           for i in range( 0, L - 1 ) ] ) ) :
-                    raise ValueError('You provided unsorted ids_subset! Sorting it. ')
+                    raise ValueError('You provided unsorted ids_subset! ')
                     ids_subset = numpy.sort( ids_subset )
         else :
             ids_subset = range( 0, L )
@@ -139,6 +139,10 @@ class BsplineBasis( FunctionalBasis ) :
             if( len( inner_breaks ) != len( numpy.unique( inner_breaks ) ) ) :
                 raise ValueError( 'Only unique inner breaks are supported for now.')
 
+            if( any( [ inner_breaks[ i ] > inner_breaks[ i + 1 ] \
+                      for i in range( 0, len( inner_breaks ) - 1 ) ] ) ) :
+                        raise ValueError('You provided unsorted inner_breaks! ')
+
             if( min( inner_breaks ) <= self.t0 or max( inner_breaks ) >= self.tP ) :
                 raise ValueError( 'You provide some inner breaks that fall outside \
                                  or on the boundary of the grid ')
@@ -175,7 +179,7 @@ class BsplineBasis( FunctionalBasis ) :
         for i in range( 0, N_intervals ) :
 
             bs_new[ i, ] = [ ( x >= knots_new[ i ] ) and \
-                            ( True if i == len( bs_new ) else x < knots_new[ i + 1 ] ) \
+                            ( True if i == ( len( bs_new ) - 1 )  else x < knots_new[ i + 1 ] ) \
                             for x in grid ]
 
         if( order == 1 ) :

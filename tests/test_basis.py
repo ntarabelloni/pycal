@@ -17,10 +17,32 @@ class FourierBasisTest( unittest.TestCase ) :
 
     def test_simpleBasis( self ):
         np.testing.assert_array_equal( bs.FourierBasis( self.grid, L = 4 ).values,
-                                np.array( [ [1. / self.l ] * int( self.P ), \
+                                np.array( [ [1. / np.sqrt( self.l ) ] * int( self.P ), \
                                     np.sin( 2 * np.pi * self.grid ) * np.sqrt( 2  / self.l ), \
                                     np.cos( 2 * np.pi * self.grid ) * np.sqrt( 2  / self.l ), \
                                     np.sin( 4 * np.pi * self.grid ) * np.sqrt( 2  / self.l ) ] ) )
+
+    def test_basisSine( self ) :
+        np.testing.assert_array_equal( bs.FourierBasis( self.grid, L = 4, ids_subset = [1,3,5,7] ).values,
+                                        np.array( [ np.sin( 2 * np.pi * self.grid ) * np.sqrt( 2 / self.l ), \
+                                                    np.sin( 4 * np.pi * self.grid ) * np.sqrt( 2 / self.l ), \
+                                                    np.sin( 6 * np.pi * self.grid ) * np.sqrt( 2 / self.l ), \
+                                                    np.sin( 8 * np.pi * self.grid ) * np.sqrt( 2 / self.l ) ] ) )
+
+    def test_basisCosine( self ) :
+        np.testing.assert_array_equal( bs.FourierBasis( self.grid, L = 4, ids_subset = [2,4,6,8] ).values, \
+                                        np.array( [ np.cos( 2 * np.pi * self.grid ) * np.sqrt( 2 / self.l ), \
+                                                    np.cos( 4 * np.pi * self.grid ) * np.sqrt( 2 / self.l ), \
+                                                    np.cos( 6 * np.pi * self.grid ) * np.sqrt( 2 / self.l ), \
+                                                    np.cos( 8 * np.pi * self.grid ) * np.sqrt( 2 / self.l ) ] ) )
+
+    def test_basisStretchGrid( self ) :
+        np.testing.assert_array_equal( bs.FourierBasis( 2 * self.grid, L = 4, ids_subset = [0,1,2,5] ).values, \
+                                       np.array( [ [ 1. / np.sqrt( 2 * self.l ) ] * int( self.P ),
+                                                    np.sin( 2 * np.pi * self.grid ) * np.sqrt( 1 / self.l ), \
+                                                    np.cos( 2 * np.pi * self.grid ) * np.sqrt( 1 / self.l ), \
+                                                    np.sin( 6 * np.pi * self.grid ) * np.sqrt( 1 / self.l ) ] ) )
+
 
     def test_errorUnsortedIds( self ) :
         with self.assertRaises(ValueError):
@@ -32,20 +54,6 @@ class FourierBasisTest( unittest.TestCase ) :
 
 suite = unittest.TestLoader().loadTestsFromTestCase( FourierBasisTest )
 unittest.TextTestRunner( verbosity = 2 ).run( suite )
-
-    #
-    # for (pos, i) in zip( range( 0, L ), ids_subset ) :
-    #     if i % 2 == 0 :
-    #         if i == 0 :
-    #             self.values[ pos ] = 1. / numpy.sqrt( l )
-    #         else :
-    #             self.values[ pos ] = numpy.sqrt( 2 / l ) * numpy.cos( 2 * numpy.pi * \
-    #                     numpy.ceil( float( i ) / 2 ) * ( grid - grid[0] ) / l )
-    #     else :
-    #         self.values[ pos ] = numpy.sqrt( 2 / l ) * numpy.sin( 2 * numpy.pi * \
-    #                     numpy.ceil( float( i ) / 2 ) * ( grid - grid[ 0 ] ) / l )
-    #
-    #
 
 
 

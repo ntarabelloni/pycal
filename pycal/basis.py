@@ -1,4 +1,6 @@
 import numpy
+import matplotlib as mpl
+import matplotlib.pyplot as plt
 
 class FunctionalBasis( object ) :
 
@@ -50,6 +52,18 @@ class FunctionalBasis( object ) :
 
         self.L = len( values )
         self.values = values.copy()
+
+    def plot( self, colors = None, show = False ) :
+
+        if( colors is None ) :
+            colors = numpy.random.choice( list( mpl.colors.cnames.keys() ), self.L )
+
+        grid = numpy.linspace( self.t0, self.tP, self.P )
+        [ plt.plot( grid, self.values[ i, ], c = colors[ i ] ) for i in range( 0, self.L ) ]
+        plt.grid()
+        
+        if show :
+            plt.show()
 
 
 class FourierBasis( FunctionalBasis ) :

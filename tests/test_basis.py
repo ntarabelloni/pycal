@@ -59,7 +59,7 @@ class BsplineBasisTest( unittest.TestCase ) :
         self.P = 101
         self.grid = np.linspace( 0, 1, self.P )
 
-    # Testing the generation of a 0-order basis on uniform knots
+    # Testing the generation of a 0-degree basis on uniform knots
     def test_zeroOrderUniformKnots( self ) :
 
         L = 4
@@ -78,7 +78,7 @@ class BsplineBasisTest( unittest.TestCase ) :
                                                        inner_breaks ).values,
                                           vals )
 
-    # Testing the generation of a 0-order basis on non-uniform knots
+    # Testing the generation of a 0-degree basis on non-uniform knots
     def test_zeroOrderNonUniformKnots( self ) :
 
         L = 4
@@ -98,23 +98,27 @@ class BsplineBasisTest( unittest.TestCase ) :
                                                         inner_breaks ).values,
                                                         vals )
 
-
+    # Testing the generation of a 1-degree basis on uniform knots
     def test_firstOrderUniformKnots( self ) :
         np.testing.assert_array_equal( bs.BsplineBasis( self.grid, 5, 1, [ 0.25, 0.5, 0.75 ] ).values,
                                        self.firstOrderValues( self.grid, [ 0., 0.25, 0.5, 0.75, 1. ] ) )
 
+    # Testing the generation of a 1-degree basis on non-uniform knots
     def test_firstOrderNonUniformKnots( self ) :
         self.assertTrue( np.sum( abs( self.firstOrderValues( self.grid, [0., 0.3, 0.4, 0.8, 1.] ) - \
                             bs.BsplineBasis( self.grid, 5, 1, [ 0.3, 0.4, 0.8 ] ).values )  ) < 3e-15 )
 
+    # Testing the constructor over non-compliant parameters
     def test_errorMismatchingParams1( self ) :
         with self.assertRaises( ValueError ) :
             bs.BsplineBasis( self.grid, L = 3, degree = 1, inner_breaks = [0.25, 0.5, 0.75 ] )
 
+    # Testing the constructor over non-sorted break points
     def test_errorMismatchingParams2( self ) :
             with self.assertRaises( ValueError ) :
                 bs.BsplineBasis( self.grid, inner_breaks = [0.5, 0.25, 0.75 ] )
 
+    # Support function to build a 1-degree basis in a direct way
     def firstOrderValues( self, grid, knots ) :
 
         K = len( knots )
@@ -123,7 +127,7 @@ class BsplineBasisTest( unittest.TestCase ) :
         values = np.zeros( ( K, P ) )
 
         f_ascending = lambda x, x0, x1 : ( x - x0 ) / ( x1 - x0 )
-        f_descending = lambda x, x0, x1 : 1 - ( x - x0 ) / ( x1 - x0 )
+        f_descending = lambda x, x0, x1 : ( x1 - x ) / ( x1 - x0 )
 
         for i in range( 0, K - 1 ) :
 
@@ -135,18 +139,3 @@ class BsplineBasisTest( unittest.TestCase ) :
         values[ K - 1 , - 1 ] = 1.
 
         return values
-
-
-
-# fbasis = BsplineBasis( grid, L = 10 )
-# fbasis = BsplineBasis( grid, L = 10, degree = 0 )
-# fbasis = BsplineBasis( grid, L = 10, degree = 0, inner_breaks = [0.5, 0.5, 0.7 ] )
-# fbasis = BsplineBasis( grid, L = 4, degree = 0, inner_breaks = [0.5, 0.6, 0.7 ] )
-# fbasis = BsplineBasis( grid, L = 10, degree = 1 )
-# fbasis = BsplineBasis( grid, inner_breaks = [ 0.05, 0.2, 0.5, 0.8, 0.95 ] )
-
-# plt.figure()
-# [ plt.plot( grid, i ) for i in fbasis.values ]
-# plt.grid()
-# plt.show()
-#

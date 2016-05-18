@@ -1,7 +1,12 @@
 from .context import pycal
 
+# Importing modules from pycal
 import pycal.basis as bs
+
+# Import testing module
 import unittest
+
+# Importing numpy
 import numpy as np
 
 

@@ -48,39 +48,7 @@ def generate_gauss_fData( N, mean, Cov ) :
 
 
 
-# Common parameters
-# N = 20
-# P = 1e3
-# grid = numpy.linspace( 0, 1, P )
 
-# TESTING the creation of functional basis
-
-# Fourier
-# fbasis = FourierBasis( grid, L = 4 )
-# fbasis = FourierBasis( grid, ids_subset = [1,3,5,7 ] )
-# fbasis = FourierBasis( grid, ids_subset = [2,4,6,8 ] )
-# fbasis = FourierBasis( grid, ids_subset = [1,2,3], L = 5 )
-# fbasis = FourierBasis( grid, L = 3, ids_subset = [1,3,2] )
-# fbasis = FourierBasis( 2 * grid, L = 1, ids_subset = [0] )
-# plt.figure()
-# [ plt.plot( grid, i ) for i in fbasis.values ]
-# plt.show()
-
-
-
-
-# fbasis = BsplineBasis( grid, L = 10 )
-# fbasis = BsplineBasis( grid, L = 10, degree = 0 )
-# fbasis = BsplineBasis( grid, L = 10, degree = 0, inner_breaks = [0.5, 0.5, 0.7 ] )
-# fbasis = BsplineBasis( grid, L = 4, degree = 0, inner_breaks = [0.5, 0.6, 0.7 ] )
-# fbasis = BsplineBasis( grid, L = 10, degree = 1 )
-# fbasis = BsplineBasis( grid, inner_breaks = [ 0.05, 0.2, 0.5, 0.8, 0.95 ] )
-
-# plt.figure()
-# [ plt.plot( grid, i ) for i in fbasis.values ]
-# plt.grid()
-# plt.show()
-#
 # geom = Geom_L2( fbasis )
 #
 # plt.figure()

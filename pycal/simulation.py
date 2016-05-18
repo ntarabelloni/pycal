@@ -1,9 +1,7 @@
 
-import numpy as np
-import matplotlib.pyplot as plt
+import numpy
 
 import scipy, scipy.linalg
-
 
 # A simple class that implements an Exponential Covariance function
 class ExpCov(object) :
@@ -25,11 +23,11 @@ class ExpCov(object) :
 
 def generate_gauss_fData( N, mean, Cov ) :
 
-    P = len( Cov.grid )
+    P = len( Cov )
 
     assert( len( mean ) == P ), 'You provided mismatching mean and covariance.'
 
-    cholCov = scipy.linalg.cholesky( Cov.eval( grid ), lower = False  )
+    cholCov = scipy.linalg.cholesky( Cov, lower = False )
 
     return numpy.dot( numpy.random.normal( 0, 1, N * P ).reshape( N, P ), cholCov ) + mean
 

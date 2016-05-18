@@ -1,80 +1,92 @@
 import numpy
 import matplotlib.pyplot as plt
 
-import scipy, scipy.linalg
+import scipy, scipy.linalg, scipy.sparse, scipy.sparse.linalg
 
 # A simple class for functional data objects
 class fData(object) :
-    def __init__( self, grid = None, data = None ) :
-        self.grid = grid.copy()
-        self.data = data.copy()
+
+    def __init__( self, data = None, grid = None, geometry = None ) :
+        self.data = data
+        self.N = len( data )
+
+        self.geometry = geometry
+        self.grid = grid
+
+        self.coefs = None
+
+        if( geometry is not None ) :
+
+            # Reference to shorten commands
+            bs = self.geometry.basis
+
+            if( self.grid is not None ) :
+                if( self.grid[ 0 ] != bs.t0 or self.grid[ -1 ] != bs.tP or \
+                    len( self.grid ) != bs.P or self.grid[ 1 ] - self.grid[ 0 ] != bs.h ) :
+                    raise ValueError('The grid you provided is not compliant with that of the geometry')
+            else :
+                self.grid = numpy.linspace( bs.t0, bs.tP, bs.P )
+
+            if( data is None ) :
+                raise ValueError('You provided a geometry but not a dataset')
+            else :
+                self._project()
+
+
+    def _project( self ) :
+
+        rhs = self._computeProjectionRHS()
+
+        print rhs.shape
+
+        self.coefs = numpy.zeros( ( self.N, self.geometry.basis.L ) )
+
+        conv_flag = 0
+
+        for i in range( 0, self.N ) :
+
+            # Solving the linear problem
+            res = scipy.sparse.linalg.cg( self.geometry.massMatrix(), rhs[ :, i ] )
+
+            conv_flag += res[ 1 ]
+            self.coefs[ i, ] = res[ 0 ]
+
+        if( res[1] > 0 ) :
+            raise ValueError('CG did not converge to the solution')
+
+
+    def _computeProjectionRHS( self ) :
+
+        rhs = numpy.zeros( ( self.geometry.basis.L, self.N ) )
+
+        # Reference to shorten commands
+        el = self.geometry.basis.values
+
+        for i in range( 0, self.N ) :
+            rhs[ : , i ] = [ self.geometry.grid_innerProduct( self.data[ i, ], el[ j, ] ) \
+                         for j in range( 0, self.geometry.basis.L ) ]
+        return rhs
+
+
+    def expand( self ) :
+
+        if( self.coefs is None or self.geometry is None ) :
+            raise ValueError('Geometry not proivided or data not projected yet')
+
+        values = numpy.zeros( ( self.N, self.geometry.basis.P ) )
+
+        for i in range( 0, self.N ) :
+            # The [ :, None ] is required to cast numpy ndarrays from (L,) into (L,1)
+            values[ i, ] = numpy.sum( self.geometry.basis.values * self.coefs[ i, ][ :, None ], 0 )
+
+        return values
+
+    def overrideofsquarebracket( self ) :
+
+        pass
+
 
     def plot( self ) :
         plt.figure()
         [ plt.plot( self.grid, self.data[ i, : ]) for i in range( 0, N ) ]
         plt.show()
-
-# A simple class that implements an Exponential Covariance function
-class ExpCov(object) :
-
-    def __init__( self, alpha, beta ) :
-        self.alpha = alpha
-        self.beta = beta
-
-    def eval( self, grid ) :
-
-        P = len( grid )
-
-        def cov_fun( s, t ) : return self.alpha *  \
-            numpy.exp( - self.beta * numpy.abs( s - t ) )
-
-        return numpy.array( [ cov_fun( s, t ) for s in grid
-                          for t in grid ] ).reshape( P, P )
-
-
-def generate_gauss_fData( N, mean, Cov ) :
-
-    P = len( Cov.grid )
-
-    assert( len( mean ) == P ), 'You provided mismatching mean and covariance.'
-
-    cholCov = scipy.linalg.cholesky( Cov.eval( grid ), lower = False  )
-
-    return numpy.dot( numpy.random.normal( 0, 1, N * P ).reshape( N, P ), cholCov ) + mean
-
-    return numpy.transpose( numpy.dot( cholCov, \
-        numpy.random.normal( 0, 1, N * P ).reshape( P, N ) ) ) + mean
-
-
-
-
-
-# geom = Geom_L2( fbasis )
-#
-# plt.figure()
-# plt.imshow( geom.massMatrix().toarray(), interpolation = "nearest" )
-# plt.colorbar()
-# plt.show()
-
-# print geom.massMatrix().toarray()
-
-
-# TESTING the creation of gaussian functional data
-# data = numpy.random.normal( 0, 1, N * P ).reshape( N, P ) + numpy.sin( 2 * numpy.pi * grid )
-# alpha = 0.4
-# beta = 0.5
-# Cov = ExpCov( alpha, beta )
-# plt.figure()
-# plt.imshow( Cov.eval( grid ) )
-# plt.colorbar()
-# plt.show()
-
-
-#
-# mean = numpy.sin( 2 * numpy.pi * grid )
-# data = generate_gauss_fData( N, mean, Cov )
-
-
-#
-# fD = fData( grid, data )
-# fD.plot()

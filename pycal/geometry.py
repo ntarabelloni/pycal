@@ -32,12 +32,16 @@ class Geom_L2( Geometry ) :
             L = self.basis.L
 
             # Lower triangular part of mass matrix
-            vals = [ self.innerProduct( el[ i, ], el[ j, ] ) for i in range( 0, L ) for j in range( 0, i ) ]
-            vals = vals * 2
-            vals += [ self.innerProduct( el[ i, ], el[ i, ] ) for i in range( 0, L ) ]
+            vals_temp = [ self.innerProduct( el[ i, ], el[ j, ] ) for i in range( 0, L ) for j in range( 0, i ) ]
 
-            ids = [ (i,j) for i in range( 0, L ) for j in range( 0, i ) ]
-            ids += [ (j,i) for i in range( 0, L ) for j in range( 0, i ) ]
+            vals = [ x for x in vals_temp if abs( x ) >= numpy.finfo(float).eps ]
+            ids = [ (i, j) for i in range( 0, L ) for j in range( 0, i )\
+                   if abs( vals_temp[ int( i * (i - 1) / 2 ) + j ] ) >= numpy.finfo(float).eps ]
+
+            vals *= 2
+            ids += [ (ID[1], ID[0]) for ID in ids ]
+
+            vals += [ self.innerProduct( el[ i, ], el[ i, ] ) for i in range( 0, L ) ]
             ids += [ (i,i) for i in range( 0, L ) ]
             ids = numpy.array( ids )
 

@@ -35,6 +35,12 @@ class GeometryL2Test( unittest.TestCase ):
                                  for j in range( 0, L ) ]
         return mass_matrix
 
+    def test_massMatrix( self ) :
+        L = 5
+        basis = bs.FourierBasis( self.grid, L  )
+
+        geo.Geom_L2( basis ).massMatrix()
+
     def test_massMatrixFourier_all5( self ):
         L = 5
         fourier = bs.FourierBasis( self.grid, L = L )
@@ -84,4 +90,47 @@ class GeometryL2Test( unittest.TestCase ):
 
         x = np.arange( 0, self.P )
 
-        self.assertTrue( np.abs( np.max( np.sqrt( G.innerProduct(  x, x ) ) - G.norm( x ) ) ) < 1e-14 )
+        self.assertTrue( np.abs( np.max( np.sqrt( G.grid_innerProduct(  x, x ) ) - G.grid_norm( x ) ) ) < 1e-14 )
+
+
+    def test_errorDot( self ) :
+
+        G = geo.Geom_L2( bs.FourierBasis( self.grid, L = 5 ) )
+
+        x = [1,2,3,4,5]
+        y = [1,2,3,4,5]
+
+        with self.assertRaises( ValueError ) :
+            G.dot( x, y )
+
+    def test_errorNorm( self ) :
+
+        G = geo.Geom_L2( bs.FourierBasis( self.grid, L = 5 ) )
+
+        x = [1,2,3,4,5]
+
+        with self.assertRaises( ValueError ) :
+            G.norm( x )
+
+    def test_errorDist( self ) :
+
+        G = geo.Geom_L2( bs.FourierBasis( self.grid, L = 5 ) )
+
+        x = [1,2,3,4,5]
+        y = [1,2,3,4,5]
+
+        with self.assertRaises( ValueError ) :
+            G.dist( x, y )
+
+    def test_norm_dist_dot( self ) :
+
+        G = geo.Geom_L2( bs.FourierBasis( self.grid, L = 5 ) )
+
+        G.massMatrix()
+
+        x = np.array( [1,2,3,4,5] )
+        y = np.array( [1,2,3,4,5] )
+
+        self.assertLess( abs( G.norm( x ) - np.sqrt( np.sum( x * x ) ) ), 1e-15 )
+        self.assertLess( abs( G.dist( x, y ) ), np.finfo( float ).eps )
+        self.assertLess( abs( G.dot( x, y ) - np.sum( x * y ) ), 1e-14 )

@@ -7,7 +7,7 @@ import scipy, scipy.linalg, scipy.sparse, scipy.sparse.linalg
 class fData(object) :
 
     def __init__( self, data = None, grid = None, geometry = None ) :
-        self.data = data
+        self.data = data.copy()
         self.N = len( data ) if data is not None else None
 
         self.geometry = geometry
@@ -96,10 +96,27 @@ class fData(object) :
         # Calling the projection method
         self._project()
 
-    def overrideofsquarebracket( self ) :
+
+    # Override of selection operator
+    def __getitem__( self, key ) :
 
         pass
 
+
+    def pop( self, key ) :
+
+        self.data = numpy.delete( self.data, key, axis = 0 )
+
+        self.N = len( self.data )
+
+        if ( self.coefs is not None ) :
+
+            self.coefs = numpy.delete( self.coefs, key, axis = 0 )
+
+
+    def __str__( self ) :
+
+        return ' Complete me!! '
 
     def plot( self ) :
         plt.figure()

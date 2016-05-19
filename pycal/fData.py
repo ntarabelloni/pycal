@@ -8,7 +8,7 @@ class fData(object) :
 
     def __init__( self, data = None, grid = None, geometry = None ) :
         self.data = data
-        self.N = len( data )
+        self.N = len( data ) if data is not None else None
 
         self.geometry = geometry
         self.grid = grid
@@ -36,8 +36,6 @@ class fData(object) :
     def _project( self ) :
 
         rhs = self._computeProjectionRHS()
-
-        print rhs.shape
 
         self.coefs = numpy.zeros( ( self.N, self.geometry.basis.L ) )
 
@@ -80,6 +78,23 @@ class fData(object) :
             values[ i, ] = numpy.sum( self.geometry.basis.values * self.coefs[ i, ][ :, None ], 0 )
 
         return values
+
+    def addGeometry( self, geometry ) :
+
+        # Reference to shorten commands
+        bs = geometry.basis
+
+        if( self.grid is not None ) :
+            if( self.grid[ 0 ] != bs.t0 or self.grid[ -1 ] != bs.tP or \
+                len( self.grid ) != bs.P or self.grid[ 1 ] - self.grid[ 0 ] != bs.h ) :
+                raise ValueError('The grid you provided is not compliant with that of the geometry')
+        else :
+            self.grid = numpy.linspace( bs.t0, bs.tP, bs.P )
+
+        self.geometry = geometry
+
+        # Calling the projection method
+        self._project()
 
     def overrideofsquarebracket( self ) :
 

@@ -150,7 +150,6 @@ class fData(object) :
 
             self.coefs = numpy.delete( self.coefs, key, axis = 0 )
 
-
     def __str__( self ) :
 
         descr =  ' Functional Dataset with shape ' + str( self.data.shape )

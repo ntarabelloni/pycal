@@ -9,6 +9,8 @@ import unittest
 # Importing numpy
 import numpy as np
 
+import copy
+
 
 class FourierBasisTest( unittest.TestCase ) :
 
@@ -68,9 +70,12 @@ class FourierBasisTest( unittest.TestCase ) :
         with self.assertRaises( ValueError ):
             bs.FourierBasis( self.grid, ids_subset = [1,2,3], L = 5 )
 
+    def test_copy( self ) :
 
-# suite = unittest.TestLoader().loadTestsFromTestCase( FourierBasisTest )
-# unittest.TextTestRunner( verbosity = 2 ).run( suite )
+        B1 = bs.FunctionalBasis( self.grid )
+        B2 = copy.deepcopy( B1 )
+
+        self.assertTrue( B1 == B2 )
 
 
 class BsplineBasisTest( unittest.TestCase ) :

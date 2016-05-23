@@ -125,6 +125,11 @@ class BsplineBasis( FunctionalBasis ) :
 
         self.generateBasis( L, degree, inner_breaks )
 
+    def __eq__( self, B ) :
+
+        return self.t0 == B.t0 and self.tP == B.tP and self.h == B.h and self.P == B.P and \
+                self.L == B.L and ( numpy.sum( self.values == B.values ) == numpy.prod( numpy.shape( self.values ) ) and self.degree == B.degree )
+
     def generateBasis( self, L = None, degree = 3, inner_breaks = None ) :
 
         self.degree = degree

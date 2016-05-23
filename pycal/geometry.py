@@ -17,12 +17,20 @@ class Geom_L2( Geometry ) :
         Geometry.__init__(self, basis )
 
     def grid_norm( self, x ) :
+
         z = x * x
+
         return numpy.sqrt( numpy.sum( ( z[ 1 : ] + z[ : -1 ] ) / 2 * self.basis.h ) )
 
     def grid_innerProduct( self, x, y ) :
+
         z = x * y
+
         return numpy.sum( ( z[ 1 : ] + z[ : - 1 ] ) * 0.5 ) * self.basis.h
+
+    def __eq__( self, G ) :
+
+        return self.basis == G.basis and ( ( self.massMatrix() - G.massMatrix() ).sum() == 0 )
 
     def massMatrix( self ) :
 

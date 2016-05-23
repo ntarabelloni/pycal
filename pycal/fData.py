@@ -45,9 +45,9 @@ class fData(object) :
             if( self.data.shape[ 1 ] != len( self.grid ) ) :
                 raise ValueError('The grid you provided is not compliant with data')
 
-        if( geometry is not None ) :
+        if( self.geometry is not None ) :
 
-            bs = self.geometry
+            bs = self.geometry.basis
 
             if( self.grid[ 0 ] != bs.t0 or self.grid[ -1 ] != bs.tP or \
                 len( self.grid ) != bs.P or self.grid[ 1 ] - self.grid[ 0 ] != bs.h ) :
@@ -57,12 +57,14 @@ class fData(object) :
 
     def setData( self, data ) :
 
+        if( self.grid is not None ) :
+
+            if( len( self.grid ) != data.shape[ 1 ] ) :
+                raise ValueError( 'The grid is not compliant with the provided dataset' )
+
         self.data = data.copy()
 
-        if( self.geometry is not None and self.grid is not None ) :
-
-            if( len( self.grid ) != self.data.shape[ 1 ] ) :
-                raise ValueError( 'The grid is not compliant with the provided dataset' )
+        if( self.geometry is not None ) :
 
             self._project()
 
@@ -131,12 +133,12 @@ class fData(object) :
         # Calling the projection method
         self._project()
 
-
     # Override of selection operator
     def __getitem__( self, key ) :
 
-        pass
+        #@NOTE: Finish me!
 
+        pass
 
     def pop( self, key ) :
 

@@ -23,6 +23,12 @@ class FunctionalBasis( object ) :
         if( values is not None ) :
             self.setValues( values )
 
+
+    def __eq__( self, B ) :
+
+        return self.t0 == B.t0 and self.tP == B.tP and self.h == B.h and self.P == B.P and \
+                self.L == B.L and ( numpy.sum( self.values == B.values ) == numpy.prod( numpy.shape( self.values ) ) )
+
     def setGrid( self, grid ) :
 
         if( self.values is not None and len( grid ) != self.values.shape[1] ) :

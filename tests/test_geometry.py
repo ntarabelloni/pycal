@@ -35,11 +35,39 @@ class GeometryL2Test( unittest.TestCase ):
                                  for j in range( 0, L ) ]
         return mass_matrix
 
-    def test_massMatrix( self ) :
+    def test_genericEq( self ) :
+
         L = 5
         basis = bs.FourierBasis( self.grid, L  )
 
-        geo.Geom_L2( basis ).massMatrix()
+        G1 = geo.Geom_L2( basis )
+        G2 = geo.Geom_L2( basis )
+
+        self.assertTrue( G1 == G2 )
+
+    def test_genericNeq( self ) :
+
+        L1 = 5
+        L2 = 4
+        B1 = bs.FourierBasis( self.grid, L1  )
+        B2 = bs.FourierBasis( self.grid, L2  )
+
+        G1 = geo.Geom_L2( B1 )
+        G2 = geo.Geom_L2( B2 )
+
+        self.assertTrue( G1 != G2 )
+
+    def test_genericEqError( self ) :
+
+        L1 = 5
+        L2 = 4
+        B1 = bs.FourierBasis( self.grid, L1  )
+        B2 = bs.FourierBasis( self.grid, L2  )
+
+        G1 = geo.Geom_L2( B1 )
+        G2 = geo.Geom_L2( B2 )
+
+        self.assertFalse( G1 == G2 )
 
     def test_massMatrixFourier_all5( self ):
         L = 5

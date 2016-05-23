@@ -24,6 +24,21 @@ class FourierBasisTest( unittest.TestCase ) :
                                     np.cos( 2 * np.pi * self.grid ) * np.sqrt( 2  / self.l ), \
                                     np.sin( 4 * np.pi * self.grid ) * np.sqrt( 2  / self.l ) ] ) )
 
+    def test_genericEq( self ) :
+
+        self.assertTrue( bs.FourierBasis( self.grid, L = 4  ) == \
+                         bs.FourierBasis( self.grid, L = 4 ) )
+
+    def test_genericNeq( self ) :
+
+        self.assertTrue( bs.FourierBasis( self.grid, L = 4 ) !=
+                         bs.FourierBasis( self.grid, L = 5 ) )
+
+    def test_genericEqError( self ) :
+
+        self.assertFalse( bs.FourierBasis( self.grid, L = 4 ) ==
+                         bs.FourierBasis( self.grid, L = 5 ) )
+
     def test_basisSine( self ) :
         np.testing.assert_array_equal( bs.FourierBasis( self.grid, L = 4, ids_subset = [1,3,5,7] ).values,
                                         np.array( [ np.sin( 2 * np.pi * self.grid ) * np.sqrt( 2 / self.l ), \

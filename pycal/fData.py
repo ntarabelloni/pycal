@@ -7,13 +7,18 @@ import scipy, scipy.linalg, scipy.sparse, scipy.sparse.linalg
 class fData(object) :
 
     def __init__( self, data = None, grid = None, geometry = None ) :
-        self.data = data.copy()
+        self.data = data.copy() if data is not None else None
         self.N = len( data ) if data is not None else None
 
         self.geometry = geometry
         self.grid = grid
 
         self.coefs = None
+
+
+        if ( self.grid is not None and self.data is not None ) :
+            if( len( self.grid ) != self.data.shape[1] ) :
+                raise ValueError('You provided a grid which is not compliant with data')
 
         if( geometry is not None ) :
 
@@ -32,6 +37,36 @@ class fData(object) :
             else :
                 self._project()
 
+    def setGrid( self, grid ) :
+
+        self.grid = grid
+
+        if( self.data is not None ) :
+            if( self.data.shape[ 1 ] != len( self.grid ) ) :
+                raise ValueError('The grid you provided is not compliant with data')
+
+        if( geometry is not None ) :
+
+            bs = self.geometry
+
+            if( self.grid[ 0 ] != bs.t0 or self.grid[ -1 ] != bs.tP or \
+                len( self.grid ) != bs.P or self.grid[ 1 ] - self.grid[ 0 ] != bs.h ) :
+                raise ValueError('The grid you provided is not compliant with that of the geometry')
+
+        return
+
+    def setData( self, data ) :
+
+        self.data = data.copy()
+
+        if( self.geometry is not None and self.grid is not None ) :
+
+            if( len( self.grid ) != self.data.shape[ 1 ] ) :
+                raise ValueError( 'The grid is not compliant with the provided dataset' )
+
+            self._project()
+
+        return
 
     def _project( self ) :
 
@@ -116,7 +151,9 @@ class fData(object) :
 
     def __str__( self ) :
 
-        return ' Complete me!! '
+        descr =  ' Functional Dataset with shape ' + str( self.data.shape )
+
+        return descr
 
     def plot( self ) :
         plt.figure()

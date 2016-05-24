@@ -158,5 +158,5 @@ class fData(object) :
 
     def plot( self ) :
         plt.figure()
-        [ plt.plot( self.grid, self.data[ i, : ]) for i in range( 0, N ) ]
+        [ plt.plot( self.grid, self.data[ i, : ]) for i in range( 0, self.N ) ]
         plt.show()

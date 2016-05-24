@@ -1,11 +1,10 @@
 import numpy
 
-import scipy as sp
+import scipy
 from scipy import linalg, sparse
 
 import copy
 
-# A simple class for functional data objects
 class Covariance( object ) :
 
     def __init__( self, fData ) :
@@ -19,37 +18,70 @@ class Covariance( object ) :
 
         self._compute()
 
+        self.eigenv = None
+        self.eigenf = None
+        self.eigenf_coefs = None
+
     def _compute( self ) :
 
-        self.cov_coefs = numpy.cov( self.data_coefs )
+        self.coefs = numpy.cov( self.data_coefs, rowvar = False )
 
     def expand( self ) :
 
-        C = numpy.zeros( ( self.geometry.basis.P ) )
+        return  numpy.dot( self.geometry.basis.values.transpose(), \
+                          numpy.dot( self.coefs, \
+                                     self.geometry.basis.values ) )
 
-        for i in range( 0, self.geometry.basis.L ) :
+    def _explainedVarianceRatio( self, v ) :
 
-            C[ i, ] = numpy.sum( self.geometry.basis.values * self.data_coefs[ i, ][ :, None ], 0 )
+        return numpy.cumsum( v[ 0 : len( v ) ]**2 ) / numpy.sum( v**2 )
+
 
     def princomp( self, N_comp = None, threshold = None ) :
 
         if( threshold is not None ) :
 
-            eigv, eigf = scipy.sparse.linalg.eigs( self.W * self.cov_coefs * self.W, M = self.W, k = self.geometry.basis.L - 1 )
+            eigv, eigf = scipy.sparse.linalg.eigsh( self.geometry.W * self.coefs * self.geometry.W, M = self.geometry.W, k = 10, which = 'LM' )
 
-            n_cutoff = numpy.argmax( numpy.cumsum( eigv ** 2 ) / numpy.sum( eigv ** 2 ) >= threshold )
+            if ( self._explainedVarianceRatio( eigv )[ -1 ] < threshold ) :
 
-            self.eigenvalues = numpy.delete( eigv, range( n_cutoff + 1, self.geometry.basis.L ) )
+                eigv, eigf = scipy.sparse.linalg.eigs( self.geometry.W * self.coefs * self.geometry.W, \
+                                                      M = self.geometry.W, \
+                                                      k = self.geometry.basis.L - 1, \
+                                                      which = 'LM' )
 
-            self.eigenfunctions = numpy.delete( eigf, range( n_cutoff + 1,  self.geometry.basis.L ), 1 ).transpose()
+            # Eigenvalues are sorted in increasing order, but I want them in decreasing
+            eigv = eigv[ ::-1 ]
+
+            k = len( eigv )
+
+            n_cutoff = numpy.argmax( self._explainedVarianceRatio( eigv ) >= threshold ) + 1
+
+            self.eigenv = eigv[ 0 : n_cutoff ]
+
+            #  And eigenfunctions accordingly
+            self.eigenf_coefs = eigf[ :, range( k - 1, k - 1 - n_cutoff, -1 ) ].transpose()
 
         elif( N_comp is not None ) :
 
-                self.eigenvalues, self.eigenvectors = scipy.sparse.linalg.eigs( self.W * self.cov_coefs * self.W, M = self.W, k = N_comp )
+                self.eigenv, self.eigenf_coefs = \
+                scipy.sparse.linalg.eigsh( self.geometry.W * self.coefs * self.geometry.W, \
+                                            M = self.geometry.W, \
+                                            k = N_comp, \
+                                            which = 'LM' )
 
-                self.eigenvalues = self.eigenvalues.transpose()
+                #  Eigenvalues are sorted in increasing order, but I want them in decreasing
+                self.eigenv = self.eigenv[ ::-1 ]
 
-        return ( self.eigenvalues, self.eigenfunctions )
+                #  And eigenfunctions accordingly
+                self.eigenf_coefs = self.eigenf_coefs[ :, ::-1 ].transpose()
+
+        else :
+            raise ValueError( 'Please specify one between N_comp and threshold' )
+
+        self.eigenf = numpy.dot( self.eigenf_coefs, self.geometry.basis.values  )
+
+        return ( self.eigenv, self.eigenf )
 
 
     # def plot( self ) :
@@ -58,26 +90,26 @@ class Covariance( object ) :
     #
     #     pass
 
-#
-# class MedianCovariation( Covariance ) :
-#
-#     def __init__( self, fData ) :
-#
-#         Cov.__init__( fData )
-#
-#         pass
-#
-#     def _compute( self ) :
-#
-#
-# class SphericalCovariance( Covariance ) :
-#
-#     def __init__( self, fData ) :
-#
-#         Cov.__init__( fData )
-#
-#         pass
-#
-#     def _compute( self ) :
-#
-#         pass
+
+class MedianCovariation( Covariance ) :
+
+    def __init__( self, fData ) :
+
+        Cov.__init__( fData )
+
+        pass
+
+    def _compute( self ) :
+        pass
+
+class SphericalCovariance( Covariance ) :
+
+    def __init__( self, fData ) :
+
+        Cov.__init__( fData )
+
+        pass
+
+    def _compute( self ) :
+
+        pass

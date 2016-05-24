@@ -123,6 +123,9 @@ class BsplineBasis( FunctionalBasis ) :
     def __init__( self, grid, L = None, degree = 3, inner_breaks = None ) :
         FunctionalBasis.__init__( self, grid )
 
+        self.degree = None
+        self.inner_breaks = None
+
         self.generateBasis( L, degree, inner_breaks )
 
     def __eq__( self, B ) :

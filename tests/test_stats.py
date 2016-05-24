@@ -20,6 +20,8 @@ class CovarianceTest( unittest.TestCase ) :
 
     def setUp( self ) :
 
+        np.random.seed( 1 )
+
         self.P = 100
         self.N = 30
         self.grid = np.linspace( 0, 1, self.P )
@@ -50,3 +52,27 @@ class CovarianceTest( unittest.TestCase ) :
 
         np.testing.assert_array_equal( C1.data_coefs, F1.coefs )
         np.testing.assert_array_equal( C2.data_coefs, F2.coefs )
+
+    def test_expansion( self ) :
+
+        np.random.seed( 1 )
+
+        self.P = 1e2
+        self.N = 300
+        self.grid = np.linspace( 0, 1, self.P )
+
+        data = sim.generate_gauss_fData( self.N,\
+                                        np.sin( 2 * np.pi * self.grid ), \
+                                        sim.ExpCov( 0.4, 0.5 ).eval( self.grid ) )
+
+        self.fD = fd.fData( data, self.grid )
+
+        C = np.cov( self.fD.data, rowvar = 0  )
+
+        self.fD.addGeometry( geo.Geom_L2( bs.FourierBasis( self.grid, L = 100 ) ) )
+
+        Cov = st.Covariance( self.fD )
+
+        self.assertEqual( np.linalg.norm( ( Cov.expand() - C ) / np.sqrt( self.P ) ), 0.097358488154431516 )
+
+    
